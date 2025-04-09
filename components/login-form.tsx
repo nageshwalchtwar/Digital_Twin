@@ -15,6 +15,13 @@ export function LoginForm() {
   const [error, setError] = useState("")
   const router = useRouter()
 
+  // Array of valid credentials
+  const validCredentials = [
+    { username: "Ankit", password: "admin123" },
+    { username: "Nagesh", password: "admin123" },
+    { username: "Shailesh", password: "admin123" },
+  ]
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -24,9 +31,16 @@ export function LoginForm() {
       return
     }
 
-    // For demo purposes, accept any login
-    // In a real app, you would validate against a backend
-    router.push("/dashboard")
+    // Check if the entered credentials match any in the validCredentials array
+    const isValid = validCredentials.some(
+      (cred) => cred.username === username && cred.password === password
+    )
+
+    if (isValid) {
+      router.push("/dashboard")
+    } else {
+      setError("I know its hard to remember but your entered credentials are incorrect")
+    }
   }
 
   return (
@@ -46,7 +60,7 @@ export function LoginForm() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="pl-10"
-              placeholder="Enter your username"
+              placeholder="Enter your username here"
             />
           </div>
         </div>
@@ -67,7 +81,7 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-10"
-              placeholder="Enter your password"
+              placeholder="Enter your password here"
             />
           </div>
         </div>
