@@ -78,11 +78,12 @@ export function AlertPanel() {
               variant={hasAlerts ? "default" : "outline"}
               className={hasAlerts ? "bg-red-600 hover:bg-red-700" : ""}
             >
-              View Alerts
+            
             </Button>
           </div>
         </CardContent>
       </Card>
+      Made by Nagesh
     </div>
   )
 }

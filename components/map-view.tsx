@@ -12,9 +12,8 @@ import L from "leaflet" // Import Leaflet
 
 // Mock initial nodes
 const initialNodes = [
-  { id: "1", name: "Node 1", lat: 51.505, lng: -0.09, status: "active" },
-  { id: "2", name: "Node 2", lat: 51.51, lng: -0.1, status: "warning" },
-  { id: "3", name: "Node 3", lat: 51.515, lng: -0.09, status: "critical" },
+  { id: "IIIT", name: "IIIT", lat: 17.446146, lng: 78.349206 , status: "active" },
+
 ]
 
 export function MapView() {
@@ -48,7 +47,7 @@ export function MapView() {
 
         // Create map if it doesn't exist
         if (mapRef.current && !map) {
-          const newMap = L.map(mapRef.current).setView([51.505, -0.09], 13)
+          const newMap = L.map(mapRef.current).setView([17.446146, 78.349206], 3)
 
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',

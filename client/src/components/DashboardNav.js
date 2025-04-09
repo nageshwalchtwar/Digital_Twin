@@ -1,6 +1,7 @@
 "use client"
+
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { FaChartBar, FaPlayCircle, FaSignOutAlt } from "react-icons/fa"
+import { FaChartBar, FaPlayCircle, FaSignOutAlt, FaChartLine } from "react-icons/fa"
 import { useAuth } from "../context/AuthContext"
 import { toast } from "react-toastify"
 
@@ -20,7 +21,7 @@ const DashboardNav = () => {
       <div className="container mx-auto px-4 flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/dashboard" className="font-bold text-xl text-gray-800">
-            Digital Twin
+            ThingSpeak Digital Twin
           </Link>
         </div>
 
@@ -33,6 +34,18 @@ const DashboardNav = () => {
           >
             <FaChartBar size={18} />
             <span>Dashboard</span>
+          </Link>
+
+          <Link
+            to="/historical-data"
+            className={`flex items-center gap-2 px-4 py-2 rounded-md ${
+              location.pathname.includes("/historical-data")
+                ? "bg-blue-600 text-white"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <FaChartLine size={18} />
+            <span>Historical Data</span>
           </Link>
 
           <Link
