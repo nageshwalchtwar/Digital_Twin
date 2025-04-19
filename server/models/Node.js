@@ -19,21 +19,9 @@ const NodeSchema = new mongoose.Schema({
     enum: ["active", "warning", "critical"],
     default: "active",
   },
-  voltage: {
-    type: Number,
-    default: () => Math.floor(Math.random() * 50) + 200, // 200-250V
-  },
-  current: {
-    type: Number,
-    default: () => Math.random() * 10, // 0-10A
-  },
-  temperature: {
-    type: Number,
-    default: () => Math.floor(Math.random() * 30) + 20, // 20-50°C
-  },
-  motorStatus: {
-    type: Boolean,
-    default: () => Math.random() > 0.3, // 70% chance of being on
+  thingSpeakChannelId: {
+    type: String,
+    default: "2293900", // Default to our main channel
   },
   lastMaintenance: {
     type: Date,

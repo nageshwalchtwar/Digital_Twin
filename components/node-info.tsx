@@ -1,22 +1,35 @@
 "use client"
 
 import type React from "react"
-
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useNodeStore, enrichNodeData } from "@/lib/node-store"
+import { useNodeStore } from "@/lib/node-store"
 import { Activity, AlertTriangle, Battery, Thermometer, Zap } from "lucide-react"
 
 export function NodeInfo() {
   const { nodes, selectedNodeId, getSelectedNode } = useNodeStore()
   const selectedNode = getSelectedNode()
+  const [thingSpeakData, setThingSpeakData] = useState(null)
 
   useEffect(() => {
-    // Enrich node data with random values for demo
-    enrichNodeData()
-  }, [])
+    if (selectedNode) {
+      fetchThingSpeakData(selectedNode.channelId, selectedNode.apiKey)
+    }
+  }, [selectedNode])
+
+  const fetchThingSpeakData = async (channelId: string, apiKey: string) => {
+    try {
+      const response = await fetch(
+        `https://api.thingspeak.com/channels/2293900/feeds.json?api_key=SMXU76RXPC1UV049`
+      )
+      const data = await response.json()
+      setThingSpeakData(data.feeds[data.feeds.length - 1]) // Get the latest feed
+    } catch (error) {
+      console.error("Error fetching ThingSpeak data:", error)
+    }
+  }
 
   if (!selectedNode) {
     return (
@@ -55,7 +68,7 @@ export function NodeInfo() {
         <Tabs defaultValue="overview">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="details">More Detailed</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
@@ -65,8 +78,8 @@ export function NodeInfo() {
                     <Zap className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Voltage</p>
-                    <h4 className="text-2xl font-bold">{selectedNode.voltage}V</h4>
+                    <p className="text-sm font-medium">Motor Temperature</p>
+                    <h4 className="text-2xl font-bold">{thingSpeakData?.field1 || "N/A"}°C</h4>
                   </div>
                 </CardContent>
               </Card>
@@ -76,8 +89,8 @@ export function NodeInfo() {
                     <Activity className="h-4 w-4 text-amber-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Current</p>
-                    <h4 className="text-2xl font-bold">{selectedNode.current?.toFixed(2)}A</h4>
+                    <p className="text-sm font-medium">Ambient Temperature</p>
+                    <h4 className="text-2xl font-bold">{thingSpeakData?.field2 || "N/A"}°C</h4>
                   </div>
                 </CardContent>
               </Card>
@@ -87,106 +100,45 @@ export function NodeInfo() {
                     <Thermometer className="h-4 w-4 text-red-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Temperature</p>
-                    <h4 className="text-2xl font-bold">{selectedNode.temperature}°C</h4>
+                    <p className="text-sm font-medium">Linear X</p>
+                    <h4 className="text-2xl font-bold">{thingSpeakData?.field3 || "N/A"}</h4>
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className={`rounded-full ${selectedNode.motorStatus ? "bg-green-100" : "bg-slate-100"} p-2`}>
-                    <Battery className={`h-4 w-4 ${selectedNode.motorStatus ? "text-green-600" : "text-slate-600"}`} />
+                  <div className="rounded-full bg-green-100 p-2">
+                    <Battery className="h-4 w-4 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Motor Status</p>
-                    <h4 className="text-2xl font-bold">{selectedNode.motorStatus ? "ON" : "OFF"}</h4>
+                    <p className="text-sm font-medium">Linear Y</p>
+                    <h4 className="text-2xl font-bold">{thingSpeakData?.field4 || "N/A"}</h4>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="rounded-full bg-purple-100 p-2">
+                    <Battery className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Linear Z</p>
+                    <h4 className="text-2xl font-bold">{thingSpeakData?.field5 || "N/A"}</h4>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="rounded-full bg-yellow-100 p-2">
+                    <Zap className="h-4 w-4 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Motor Current</p>
+                    <h4 className="text-2xl font-bold">{thingSpeakData?.field6 || "N/A"}A</h4>
                   </div>
                 </CardContent>
               </Card>
             </div>
-
-            {selectedNode.alerts && selectedNode.alerts.length > 0 && (
-              <Card className="border-amber-200 bg-amber-50">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-amber-800">
-                    <AlertTriangle className="h-5 w-5" />
-                    <h4 className="font-medium">Active Alerts</h4>
-                  </div>
-                  <ul className="mt-2 space-y-1">
-                    {selectedNode.alerts.map((alert, index) => (
-                      <li key={index} className="text-sm text-amber-700 flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                        {alert}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-          <TabsContent value="details" className="space-y-4 pt-4">
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-medium mb-2">Node Details</h4>
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 text-sm">
-                    <span className="text-slate-500">ID</span>
-                    <span>{selectedNode.id}</span>
-                  </div>
-                  <div className="grid grid-cols-2 text-sm">
-                    <span className="text-slate-500">Location</span>
-                    <span>
-                      {selectedNode.lat}, {selectedNode.lng}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 text-sm">
-                    <span className="text-slate-500">Last Maintenance</span>
-                    <span>{selectedNode.lastMaintenance}</span>
-                  </div>
-                  <div className="grid grid-cols-2 text-sm">
-                    <span className="text-slate-500">Status</span>
-                    <Badge className={statusColor}>
-                      {selectedNode.status.charAt(0).toUpperCase() + selectedNode.status.slice(1)}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-medium mb-2">Performance Metrics</h4>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Efficiency</span>
-                      <span>78%</span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: "78%" }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Uptime</span>
-                      <span>92%</span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: "92%" }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Load</span>
-                      <span>45%</span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div className="bg-amber-500 h-2 rounded-full" style={{ width: "45%" }}></div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </CardContent>
